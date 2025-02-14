@@ -6,6 +6,7 @@ from ....schemas import user as user_schema
 from ....crud import user as user_crud
 from ....db.session import get_db
 from typing import List
+from loguru import logger
 
 router = APIRouter()
 
@@ -15,6 +16,7 @@ async def read_users(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
+    logger.info(f"Fetching users with skip={skip}, limit={limit}")
     users = await user_crud.get_users(db, skip=skip, limit=limit)
     return users
 
