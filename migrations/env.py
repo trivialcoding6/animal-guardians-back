@@ -11,16 +11,16 @@ from app.models import *  # 모든 모델 임포트
 
 # Alembic 설정 파일 로드
 config = context.config
-fileConfig(config.config_file_name)
 
-# SQLModel의 메타데이터를 Alembic의 대상으로 지정
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+# 메타데이터 대상 설정
 target_metadata = SQLModel.metadata
 
-# 데이터베이스 URL 가져오는 함수
 def get_url():
     return settings.SQLALCHEMY_DATABASE_URI
 
-# 오프라인 모드에서 마이그레이션 실행
 def run_migrations_offline() -> None:
     url = get_url()
     context.configure(
@@ -28,32 +28,34 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        compare_type=True,  # 컬럼 타입 변경 감지
+        compare_server_default=True,  # 기본값 변경 감지
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
-# 온라인 모드에서 마이그레이션 실행 (비동기)
-async def run_migrations_online() -> None:
+def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section)
-    url = get_url()
-    configuration["sqlalchemy.url"] = url
-
-    # 데이터베이스 엔진 설정
+    configuration["sqlalchemy.url"] = get_url()
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    # 비동기 연결로 마이그레이션 실행
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
+            compare_server_default=True,
+        )
+
         with context.begin_transaction():
             context.run_migrations()
 
-# 메인 실행 부분
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run_migrations_online()
