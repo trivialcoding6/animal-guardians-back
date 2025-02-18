@@ -40,7 +40,7 @@ async def upload(file: UploadFile):
         blob_client.upload_blob(contents)
 
         # 업로드된 Blob의 URL 생성
-        blob_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{settings.container_name}/{file_name}"
+        blob_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{settings.CONTAINER_NAME}/{file_name}"
 
         # 파일 업로드 성공 후 JSON 응답 반환
         return {"filename": file_name, "url": blob_url}
