@@ -8,9 +8,6 @@ import os
 # APIRouter 생성
 router = APIRouter()
 
-class ImageURL(BaseModel):
-    url: str
-
 @router.post("/", response_model=Upload)
 async def upload(file: UploadFile):
     # Azure Blob 서비스 클라이언트 생성
