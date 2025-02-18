@@ -7,6 +7,8 @@ import os
 router = APIRouter()
 
 # Azure Blob Storage 설정
+# 애저 커넥팅
+# 컨테이너 이름
 
 class ImageURL(BaseModel):
     url: str
@@ -24,11 +26,15 @@ async def upload(file: UploadFile = File(...)):
         file_name = file.filename
 
         # Azure Blob Storage에 파일 업로드
-        blob_client = container_client.get_blob_client(blob=file_name)  # Blob 클라이언트 생성
-        blob_client.upload_blob(file.file)  # Blob에 파일 업로드
+        blob_client = container_client.get_blob_client(blob=file_name)
+        blob_client.upload_blob(file.file)
+
+        # 업로드된 Blob의 URL 생성
+        blob_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{CONTAINER_NAME}/{file_name}"
 
         # 파일 업로드 성공 후 JSON 응답 반환
-        return {"filename": file_name, "detail": "파일이 성공적으로 업로드되었습니다."}
+        return {"filename": file_name, "url": blob_url}
+
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
