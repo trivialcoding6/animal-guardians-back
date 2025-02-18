@@ -11,10 +11,10 @@ router = APIRouter()
 @router.post("/", response_model=Upload)
 async def upload(file: UploadFile):
     # Azure Blob 서비스 클라이언트 생성
-    blob_service_client = BlobServiceClient.from_connection_string(settings.azure_connection_string)
+    blob_service_client = BlobServiceClient.from_connection_string(settings.AZURE_CONNECTION_STRING)
 
     # Blob 컨테이너 클라이언트 생성
-    container_client = blob_service_client.get_container_client(settings.container_name)
+    container_client = blob_service_client.get_container_client(settings.CONTAINER_NAME)
 
     try:
     # 파일 크기 검증 (예: 10MB 제한)
