@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_HOST: str
     DB_PORT: str
+    azure_connection_string: str
+    container_name: str
     
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
