@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     DB_PORT: str
     AZURE_CONNECTION_STRING: str
     CONTAINER_NAME: str
+    PREDICTION_ENDPOINT: str
+    PREDICTION_KEY: str
+    PROJECT_ID: str
+    MODEL_NAME: str
     
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

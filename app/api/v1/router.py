@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import users  # 엔드포인트 import
 from app.api.v1.endpoints import upload  # upload 모듈에서 router를 가져옵니다.
+from app.api.v1.endpoints import prediction
 
 router = APIRouter()
 
@@ -16,3 +17,9 @@ router.include_router(
     prefix="/upload",  # 해당 라우터의 접두사 정의
     tags=["upload"]
 )
+
+router.include_router(
+    prediction.router, 
+    prefix="/api/v1", 
+    tags=["prediction"]
+    )  # 선택적으로 prefix와 tags 추가
