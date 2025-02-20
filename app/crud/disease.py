@@ -118,8 +118,6 @@ async def update_disease(
     
     # 기본 정보 업데이트
     db_disease.name = disease.name
-    if disease.category:
-        db_disease.category = disease.category
     
     # 상세 정보 업데이트 (기존 정보 삭제 후 새로 추가)
     query = select(DiseaseDetail).where(DiseaseDetail.disease_id == disease_id)
