@@ -26,7 +26,7 @@ app = FastAPI(title="My API", lifespan=lifespan)
 # CORS 미들웨어 설정
 origins = [
     "http://localhost:3000",     # React 개발 서버
-    "https://yourfrontend.com",  # 프로덕션 프론트엔드 도메인
+    "https://animal-guardians-front.vercel.app",  # 프로덕션 프론트엔드 도메인
 ]
 
 app.add_middleware(
