@@ -57,5 +57,6 @@ jobs:
                            "DB_PORT=${{ secrets.DB_PORT }}" \
                            "DB_NAME=${{ secrets.DB_NAME }}" \
                            "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
+                           "CONTAINER_NAME=${{ secrets.CONTAINER_NAME }}" \
                            "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
                            "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}"
