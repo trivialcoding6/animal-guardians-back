@@ -16,7 +16,7 @@ jobs:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
-      STORAGE_CONTAINER_NAME: ${{ secrets.STORAGE_CONTAINER_NAME }}
+      STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
 
     steps:
       - uses: actions/checkout@v2
@@ -57,6 +57,6 @@ jobs:
                            "DB_PORT=${{ secrets.DB_PORT }}" \
                            "DB_NAME=${{ secrets.DB_NAME }}" \
                            "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-                           "STORAGE_CONTAINER_NAME=${{ secrets.STORAGE_CONTAINER_NAME }}" \
+                           "STORAGE_NAME=${{ secrets.STORAGE_NAME }}" \
                            "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
                            "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}"
