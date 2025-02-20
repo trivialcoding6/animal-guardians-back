@@ -4,6 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 from app.models.insurance import Insurance
 from app.schemas.insurance import InsuranceCreate, InsuranceUpdate
+from app.models.disease import Disease
 
 async def get_insurances(
     db: AsyncSession, 
@@ -32,6 +33,13 @@ async def create_insurance(
     insurance: InsuranceCreate, 
     disease_id: UUID
 ) -> Insurance:
+    # 질병 ID 존재 여부 확인
+    disease_exists = await db.execute(
+        select(Disease).where(Disease.id == disease_id)
+    )
+    if not disease_exists.scalar_one_or_none():
+        raise ValueError(f"Disease with id {disease_id} not found")
+
     db_insurance = Insurance(
         disease_id=disease_id,
         insurance_name=insurance.insurance_name,

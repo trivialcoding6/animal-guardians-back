@@ -46,7 +46,14 @@ async def create_disease(
     disease: DiseaseCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    return await disease_crud.create_disease(db=db, disease=disease)
+    try:
+        return await disease_crud.create_disease(db=db, disease=disease)
+    except Exception as e:
+        logger.error(f"Disease creation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="질병 정보 생성 중 오류가 발생했습니다"
+        )
 
 @router.put("/{disease_id}", response_model=DiseaseSchema)
 async def update_disease(
@@ -54,22 +61,40 @@ async def update_disease(
     disease: DiseaseCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    updated_disease = await disease_crud.update_disease(db, disease_id, disease)
-    if updated_disease is None:
-        raise HTTPException(status_code=404, detail="Disease not found")
-    return DiseaseSchema.model_validate(updated_disease)
+    try:
+        updated_disease = await disease_crud.update_disease(db, disease_id, disease)
+        if updated_disease is None:
+            raise HTTPException(status_code=404, detail="Disease not found")
+        return DiseaseSchema.model_validate(updated_disease)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Disease update failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="질병 정보 수정 중 오류가 발생했습니다"
+        )
 
 @router.delete("/{disease_id}")
 async def delete_disease(
     disease_id: UUID,
     db: AsyncSession = Depends(get_db)
 ):
-    deleted_disease = await disease_crud.delete_disease(db, disease_id)
-    if deleted_disease is None:
-        raise HTTPException(status_code=404, detail="Disease not found")
-    return {"message": "Disease deleted successfully"}
+    try:
+        deleted_disease = await disease_crud.delete_disease(db, disease_id)
+        if deleted_disease is None:
+            raise HTTPException(status_code=404, detail="Disease not found")
+        return {"message": "Disease deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Disease deletion failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="질병 정보 삭제 중 오류가 발생했습니다"
+        )
 
-@router.get("/disease/{disease_id}", response_model=List[HospitalSchema])
+@router.get("/{disease_id}/hospitals", response_model=List[HospitalSchema])
 async def read_hospitals_by_disease(
     disease_id: UUID,
     db: AsyncSession = Depends(get_db)
@@ -77,7 +102,7 @@ async def read_hospitals_by_disease(
     hospitals = await hospital_crud.get_hospitals_by_disease(db, disease_id)
     return [HospitalSchema.model_validate(hospital) for hospital in hospitals]
 
-@router.get("/disease/{disease_id}", response_model=List[InsuranceSchema])
+@router.get("/{disease_id}/insurances", response_model=List[InsuranceSchema])
 async def read_insurances_by_disease(
     disease_id: UUID,
     db: AsyncSession = Depends(get_db)

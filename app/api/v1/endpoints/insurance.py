@@ -5,6 +5,7 @@ from uuid import UUID
 from app.db.session import get_db
 from app.schemas.insurance import InsuranceSchema, InsuranceCreate, InsuranceUpdate
 from app.crud import insurance as insurance_crud
+from app.crud import disease as disease_crud
 
 router = APIRouter()
 
@@ -41,6 +42,9 @@ async def create_insurance(
     insurance: InsuranceCreate,
     db: AsyncSession = Depends(get_db)
 ):
+    disease = await disease_crud.get_disease(db, disease_id)
+    if not disease:
+        raise HTTPException(status_code=404, detail="Disease not found")
     return await insurance_crud.create_insurance(db=db, insurance=insurance, disease_id=disease_id)
 
 @router.put("/{insurance_id}", response_model=InsuranceSchema)
