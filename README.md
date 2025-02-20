@@ -113,3 +113,81 @@ poetry run pytest --cov=app tests/
 
 GitHub Actions를 통해 Azure Container Apps에 자동 배포됩니다.
 `main` 브랜치에 푸시하면 자동으로 배포 파이프라인이 실행됩니다.
+
+## Docker 설정 및 실행
+
+### Docker 설치
+- Mac: [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/) 설치
+- Windows: [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) 설치
+- Linux: [Docker Engine](https://docs.docker.com/engine/install/) 설치
+
+### Docker 실행 전 확인사항
+1. Docker 데몬이 실행 중인지 확인
+```bash
+# Docker 데몬 상태 확인
+docker info
+
+# Mac/Linux에서 Docker 데몬 시작
+sudo systemctl start docker
+
+# Docker Desktop이 실행 중인지 확인 (Mac/Windows)
+```
+
+2. 네트워크 설정 확인
+- 프록시 설정이 필요한 경우:
+```bash
+# Docker 설정 파일에 프록시 설정 추가
+{
+  "proxies": {
+    "default": {
+      "httpProxy": "http://proxy:port",
+      "httpsProxy": "http://proxy:port",
+      "noProxy": "localhost,127.0.0.1"
+    }
+  }
+}
+```
+
+### Docker 이미지 빌드 및 실행
+
+1. 이미지 빌드
+```bash
+# 캐시 없이 새로 빌드
+docker build --no-cache -t animal-guardians-backend .
+
+# 일반 빌드
+docker build -t animal-guardians-backend .
+```
+
+2. 컨테이너 실행
+```bash
+# 환경변수 파일을 사용하여 실행
+docker run -d \
+  --name animal-guardians \
+  -p 8000:8000 \
+  --env-file .env \
+  animal-guardians-backend
+
+# 환경변수를 직접 지정하여 실행
+docker run -d \
+  --name animal-guardians \
+  -p 8000:8000 \
+  -e DATABASE_URL=postgresql://user:password@host:5432/dbname \
+  -e SECRET_KEY=your-secret-key \
+  animal-guardians-backend
+```
+
+3. 컨테이너 관리
+```bash
+# 컨테이너 상태 확인
+docker ps
+
+# 컨테이너 로그 확인
+docker logs animal-guardians
+
+# 컨테이너 중지
+docker stop animal-guardians
+
+# 컨테이너 재시작
+docker restart animal-guardians
+```
