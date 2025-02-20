@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     AZURE_CONNECTION_STRING: str
     CONTAINER_NAME: str
+    
     PREDICTION_ENDPOINT: str
     PREDICTION_KEY: str
     PROJECT_ID: str

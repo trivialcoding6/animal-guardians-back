@@ -15,7 +15,7 @@ router.include_router(
 
 router.include_router(
     prediction.router, 
-    prefix="/api/v1", 
+    prefix="/prediction", 
     tags=["prediction"]
     )
 

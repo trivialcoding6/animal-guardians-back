@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
-from msrest.authentication import CognitiveServicesCredentials  # 수정 필요
+from msrest.authentication import ApiKeyCredentials
+from app.schemas.predict import PredictionResult, ImagePredictionRequest
 import requests
 import os
 from app.core.config import settings
@@ -10,20 +11,12 @@ from typing import List
 # APIRouter 생성
 router = APIRouter()
 
-# Pydantic 모델 정의
-class ImagePredictionRequest(BaseModel):
-    image_url: str
-
-class PredictionResult(BaseModel):
-    tag_name: str
-    probability: float
-
-credentials = CognitiveServicesCredentials(settings.PREDICTION_KEY)
+credentials = ApiKeyCredentials(in_headers={"Prediction-key": settings.PREDICTION_KEY})
 
 # 클라이언트 초기화
 prediction_client = CustomVisionPredictionClient(
     endpoint=settings.PREDICTION_ENDPOINT,
-    credentials=credentials  # 'credential' 대신 'credentials' 사용
+    credentials=credentials
 )
 
 @router.post("/predict", response_model=List[PredictionResult])
@@ -37,11 +30,12 @@ async def predict_image(request: ImagePredictionRequest):
 
     # 예측 요청
     try:
-        results = prediction_client.classify_image_url(
+        image_data = response.content  # 바이트 스트림으로 이미지 데이터 가져오기
+
+        results = prediction_client.classify_image(
             project_id=settings.PROJECT_ID,
-            model_name=settings.MODEL_NAME,  # 여기에서 모델 이름 지정
-            published_name=settings.MODEL_NAME,  # 배포할 모델의 이름 추가
-            url=request.image_url
+            published_name=settings.MODEL_NAME,
+            image_data=image_data
         )
 
         # 예측 결과 처리, 확률로 정렬하고 상위 3개 선택
