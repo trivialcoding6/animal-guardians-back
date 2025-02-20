@@ -49,7 +49,6 @@ jobs:
               --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
               --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} \
               --container-name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
-              --min-replicas 1 \
               --set-env-vars "DB_USER=${{ secrets.DB_USER }}" \
                            "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
                            "DB_HOST=${{ secrets.DB_HOST }}" \
