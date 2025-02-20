@@ -2,13 +2,16 @@ import pytest
 from typing import AsyncGenerator, Generator
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import SQLModel
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import MetaData
 from app.main import app
 from app.db.session import get_db
 
 # SQLite in-memory 데이터베이스 사용
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+# Base 클래스 생성
+Base = declarative_base()
 
 # 테스트용 엔진 생성
 engine_test = create_async_engine(
@@ -45,10 +48,10 @@ async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
 @pytest.fixture(autouse=True)
 async def setup_db():
     async with engine_test.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
     yield
     async with engine_test.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)
 
 @pytest.fixture
 async def session() -> AsyncGenerator[AsyncSession, None]:
