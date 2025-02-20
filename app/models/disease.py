@@ -1,9 +1,14 @@
 from __future__ import annotations
-from typing import List
+from typing import List, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, ForeignKey
 from uuid import UUID
 from .base import Base
+
+if TYPE_CHECKING:
+    from .hospital import Hospital
+    from .insurance import Insurance
+    
 
 class Disease(Base):
     __tablename__ = "diseases"
