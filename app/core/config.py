@@ -12,11 +12,11 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: str
     DB_NAME: str
+    SECRET_KEY: str
+    DATABASE_URL: str
 
     AZURE_CONNECTION_STRING: str
     CONTAINER_NAME: str
-
-    
     
     @property
     def DATABASE_URL(self) -> str:
