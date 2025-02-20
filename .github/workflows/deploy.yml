@@ -48,7 +48,7 @@ jobs:
               --name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
               --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
               --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} \
-              --container-name ${{ secrets.CONTAINER_NAME }} \
+              --container-name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
               --cpu 1.0 --memory 2Gi \
               --min-replicas 0 --max-replicas 2 \
               --set-env-vars "DB_USER=${{ secrets.DB_USER }}" \
