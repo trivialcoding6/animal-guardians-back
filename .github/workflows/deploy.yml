@@ -7,7 +7,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     env:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -20,51 +19,38 @@ jobs:
       STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
 
     steps:
-      - name: 체크아웃
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Azure 로그인
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 1) ACR 원격 빌드
-      - name: ACR 빌드 및 푸시
-        uses: azure/CLI@v1
+      - name: ACR 로그인
+        uses: azure/docker-login@v1
         with:
-          inlineScript: |
-            # ACR에서 Dockerfile 기반으로 빌드 (원격 빌드)
-            az acr build \
-              --registry ${{ secrets.AZURE_REGISTRY_NAME }} \
-              --image ${{ secrets.AZURE_CONTAINER_APP_NAME }}:${{ github.sha }} \
-              --file Dockerfile \
-              .
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      # 2) Container App 배포
+      - name: 이미지 빌드 및 푸시
+        run: |
+          docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}
+          docker tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:latest
+
       - name: Container App 배포
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            # 컨테이너 앱 존재 여부 확인
-            exists=$(az containerapp show \
+            az containerapp update \
               --name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
               --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-              --query "name" --output tsv 2>/dev/null)
-
-            IMAGE_NAME="${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/${{ secrets.AZURE_CONTAINER_APP_NAME }}:${{ github.sha }}"
-
-            if [ -z "$exists" ]; then
-              echo "Container App does not exist. Creating a new one..."
-
-              # Container App 새로 생성: --image로 ACR 이미지를 직접 지정
-              az containerapp create \
-                --name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
-                --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-                --image "$IMAGE_NAME" \
-                --ingress external \
-                --target-port 8000 \
-                --min-replicas 1 \
-                --env-vars "DB_USER=${{ secrets.DB_USER }}" \
+              --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} \
+              --container-name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
+              --min-replicas 1 \
+              --set-env-vars "DB_USER=${{ secrets.DB_USER }}" \
                            "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
                            "DB_HOST=${{ secrets.DB_HOST }}" \
                            "DB_PORT=${{ secrets.DB_PORT }}" \
@@ -73,22 +59,3 @@ jobs:
                            "STORAGE_NAME=${{ secrets.STORAGE_NAME }}" \
                            "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
                            "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}"
-            else
-              echo "Container App exists. Updating the existing one..."
-
-              # 이미 존재하면 업데이트
-              az containerapp update \
-                --name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
-                --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-                --image "$IMAGE_NAME" \
-                --min-replicas 1 \
-                --set-env-vars "DB_USER=${{ secrets.DB_USER }}" \
-                               "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
-                               "DB_HOST=${{ secrets.DB_HOST }}" \
-                               "DB_PORT=${{ secrets.DB_PORT }}" \
-                               "DB_NAME=${{ secrets.DB_NAME }}" \
-                               "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-                               "STORAGE_NAME=${{ secrets.STORAGE_NAME }}" \
-                               "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-                               "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}"
-            fi
