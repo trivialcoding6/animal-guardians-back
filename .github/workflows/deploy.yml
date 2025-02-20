@@ -37,12 +37,12 @@ jobs:
           containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
           imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}
           environmentVariables: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_HOST=${{ secrets.DB_HOST }}
             DB_PORT=${{ secrets.DB_PORT }}
             DB_NAME=${{ secrets.DB_NAME }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
             AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}
             CONTAINER_NAME=${{ secrets.CONTAINER_NAME }}
