@@ -25,7 +25,6 @@ prediction_client = CustomVisionPredictionClient(
     endpoint=settings.PREDICTION_ENDPOINT,
     credentials=credentials  # 'credential' 대신 'credentials' 사용
 )
-# print(dir(CustomVisionPredictionClient))  # client에서 지원하는 메서드 확인
 
 @router.post("/predict", response_model=List[PredictionResult])
 async def predict_image(request: ImagePredictionRequest):
