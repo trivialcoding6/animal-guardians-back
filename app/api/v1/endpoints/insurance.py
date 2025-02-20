@@ -5,7 +5,6 @@ from uuid import UUID
 from app.db.session import get_db
 from app.schemas.insurance import InsuranceSchema, InsuranceCreate, InsuranceUpdate
 from app.crud import insurance as insurance_crud
-from loguru import logger
 
 router = APIRouter()
 
