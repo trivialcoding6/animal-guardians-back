@@ -1,10 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 from msrest.authentication import ApiKeyCredentials
 from app.schemas.predict import PredictionResult, ImagePredictionRequest
 import requests
-import os
 from app.core.config import settings
 from typing import List
 
@@ -26,7 +24,7 @@ async def predict_image(request: ImagePredictionRequest):
         response = requests.get(request.image_url)
         response.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        raise HTTPException(status_code=400, detail="Error fetching image: " + str(err))
+        raise HTTPException(status_code=400, detail="Error fetching image: " + str(err)) from err
 
     # 예측 요청
     try:
@@ -45,4 +43,4 @@ async def predict_image(request: ImagePredictionRequest):
         return [PredictionResult(tag_name=pred.tag_name, probability=pred.probability) for pred in top_predictions]
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")  # 예외 시 상세 정보 포함
+        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}") from e
