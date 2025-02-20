@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     AZURE_CONNECTION_STRING: str
-    STORAGE_CONTAINER_NAME: str
+    STORAGE_NAME: str
     
     @property
     def ASYNC_DATABASE_URL(self) -> str:
