@@ -17,6 +17,10 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
       STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
+      PREDICTION_ENDPOINT: ${{ secrets.PREDICTION_ENDPOINT }}
+      PREDICTION_KEY: ${{ secrets.PREDICTION_KEY }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      MODEL_NAME: ${{ secrets.MODEL_NAME }}
 
     steps:
       - uses: actions/checkout@v2
@@ -58,4 +62,8 @@ jobs:
                            "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
                            "STORAGE_NAME=${{ secrets.STORAGE_NAME }}" \
                            "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-                           "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}"
+                           "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" \
+                           "PREDICTION_ENDPOINT=${{ secrets.PREDICTION_ENDPOINT }}" \
+                           "PREDICTION_KEY=${{ secrets.PREDICTION_KEY }}" \
+                           "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
+                           "MODEL_NAME=${{ secrets.MODEL_NAME }}"
