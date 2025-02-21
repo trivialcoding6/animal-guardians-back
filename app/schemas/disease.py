@@ -18,6 +18,7 @@ class DiseaseSchema(BaseModel):
     
     id: UUID
     name: str
+    type: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     details: List[DiseaseDetailSchema]
@@ -31,12 +32,14 @@ class DiseaseDetailCreate(BaseModel):
 
 class DiseaseCreate(BaseModel):
     name: str
+    type: Optional[str] = None
     details: List[DiseaseDetailCreate] = []
     hospitals: List[HospitalCreate] = []
     insurances: List[InsuranceCreate] = []
 
 class DiseaseUpdate(BaseModel):
     name: Optional[str] = None
+    type: Optional[str] = None
     details: Optional[List[DiseaseDetailCreate]] = None
     hospitals: Optional[List[HospitalCreate]] = None
     insurances: Optional[List[InsuranceCreate]] = None

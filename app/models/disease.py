@@ -14,6 +14,8 @@ class Disease(Base):
     __tablename__ = "diseases"
     
     name: Mapped[str] = mapped_column(String(100), index=True)
+
+    type: Mapped[str] = mapped_column(String(100), index=True, nullable=True)
     
     details: Mapped[List["DiseaseDetail"]] = relationship(
         back_populates="disease",

@@ -66,7 +66,7 @@ async def get_disease_details_by_name(
 
 async def create_disease(db: AsyncSession, disease: DiseaseCreate) -> Disease:
     # 질병 기본 정보 생성
-    db_disease = Disease(name=disease.name)
+    db_disease = Disease(name=disease.name, type=disease.type)
     db.add(db_disease)
     await db.commit()
     await db.refresh(db_disease)
@@ -118,6 +118,7 @@ async def update_disease(
     
     # 기본 정보 업데이트
     db_disease.name = disease.name
+    db_disease.type = disease.type
     
     # 상세 정보 업데이트 (기존 정보 삭제 후 새로 추가)
     query = select(DiseaseDetail).where(DiseaseDetail.disease_id == disease_id)
