@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import upload  # upload 모듈에서 router를 가져옵니다.
+from app.api.v1.endpoints import prediction
 from app.api.v1.endpoints import disease
 from app.api.v1.endpoints import hospital
 from app.api.v1.endpoints import insurance
@@ -11,6 +12,12 @@ router.include_router(
     prefix="/upload",  # 해당 라우터의 접두사 정의
     tags=["upload"]
 )
+
+router.include_router(
+    prediction.router, 
+    prefix="/prediction", 
+    tags=["prediction"]
+    )
 
 router.include_router(
     disease.router,

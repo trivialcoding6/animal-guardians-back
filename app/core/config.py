@@ -17,6 +17,11 @@ class Settings(BaseSettings):
 
     AZURE_CONNECTION_STRING: str
     STORAGE_NAME: str
+
+    PREDICTION_ENDPOINT: str
+    PREDICTION_KEY: str
+    PROJECT_ID: str
+    MODEL_NAME: str
     
     @property
     def ASYNC_DATABASE_URL(self) -> str:
