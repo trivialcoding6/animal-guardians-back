@@ -7,6 +7,16 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
+      STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
 
     steps:
       - uses: actions/checkout@v2
@@ -31,16 +41,21 @@ jobs:
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:latest
 
       - name: Container App 배포
-        uses: azure/container-apps-deploy-action@v1
+        uses: azure/CLI@v1
         with:
-          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
-          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}
-          environmentVariables: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
+          inlineScript: |
+            az containerapp update \
+              --name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }} \
+              --container-name ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
+              --min-replicas 1 \
+              --set-env-vars "DB_USER=${{ secrets.DB_USER }}" \
+                           "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+                           "DB_HOST=${{ secrets.DB_HOST }}" \
+                           "DB_PORT=${{ secrets.DB_PORT }}" \
+                           "DB_NAME=${{ secrets.DB_NAME }}" \
+                           "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
+                           "STORAGE_NAME=${{ secrets.STORAGE_NAME }}" \
+                           "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+                           "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}"
