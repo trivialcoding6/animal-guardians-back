@@ -31,12 +31,12 @@ async def read_disease(
         raise HTTPException(status_code=404, detail="Disease not found")
     return DiseaseSchema.model_validate(disease)
 
-@router.get("/name/{disease_name}", response_model=DiseaseSchema)
-async def read_disease_by_name(
-    disease_name: str,
+@router.get("/type/{disease_type}", response_model=DiseaseSchema)
+async def read_disease_by_type(
+    disease_type: str,
     db: AsyncSession = Depends(get_db)
 ):
-    disease = await disease_crud.get_disease_by_name(db, disease_name)
+    disease = await disease_crud.get_disease_by_type(db, disease_type)
     if disease is None:
         raise HTTPException(status_code=404, detail="Disease not found")
     return DiseaseSchema.model_validate(disease)

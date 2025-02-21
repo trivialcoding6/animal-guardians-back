@@ -39,8 +39,8 @@ async def get_disease(db: AsyncSession, disease_id: UUID) -> Optional[Disease]:
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-async def get_disease_by_name(db: AsyncSession, name: str) -> Optional[Disease]:
-    stmt = select(Disease).where(Disease.name == name)
+async def get_disease_by_type(db: AsyncSession, type: str) -> Optional[Disease]:
+    stmt = select(Disease).where(Disease.type == type)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
