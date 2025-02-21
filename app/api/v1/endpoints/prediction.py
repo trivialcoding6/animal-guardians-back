@@ -39,7 +39,6 @@ async def predict_image(request: ImagePredictionRequest):
         # 예측 결과 처리, 확률로 정렬하고 상위 3개 선택
         top_predictions = sorted(results.predictions, key=lambda p: p.probability, reverse=True)[:3]
         
-        # JSON 응답 생성
         return [PredictionResult(tag_name=pred.tag_name, probability=pred.probability) for pred in top_predictions]
     
     except Exception as e:
