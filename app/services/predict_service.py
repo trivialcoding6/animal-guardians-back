@@ -5,6 +5,9 @@ from typing import List
 from PIL import Image
 from fastapi import HTTPException, status
 import logging
+import torch.nn as nn
+from torchvision import models
+import json
 
 from azure.storage.blob import BlobServiceClient
 import torchvision.transforms as transforms
@@ -15,26 +18,9 @@ from app.core.config import settings
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 from msrest.authentication import ApiKeyCredentials
 
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+from app.ai_models.architectures import EnsembleModel
 
 logger = logging.getLogger(__name__)
-
-# 분류할 질병 라벨 목록 (모델 아웃풋 순서에 대응해야 함, 예시는 5개)
-DOG_LABELS = [
-    "A1",
-    "A2",
-    "A3",
-    "A4",
-    "A5",
-    "A6",
-    "Negative"
-]
-
-CAT_LABELS = [
-    "A2",
-    "A4",
-    "A6"
-]
 
 async def predict_pet_disease_torch(image_url: str, pet_type: str) -> List[PredictionResult]:
     """
@@ -50,36 +36,86 @@ async def predict_pet_disease_torch(image_url: str, pet_type: str) -> List[Predi
     # -----------------------------
     if pet_type == "dog":
         model_file_name = settings.TORCH_DOG_MODEL_NAME
-        disease_labels = DOG_LABELS
+        disease_labels = settings.DOG_LABELS
     elif pet_type == "cat":
         model_file_name = settings.TORCH_CAT_MODEL_NAME
-        disease_labels = CAT_LABELS
+        disease_labels = settings.CAT_LABELS
     else:
-        # 그 외의 경우 예외 처리하거나, 기본값 지정
         raise ValueError(f"지원되지 않는 pet_type: {pet_type}")
 
     # -----------------------------
-    # (B) Blob Storage에서 모델 다운로드
+    # (B) Blob Storage에서 모델 및 라벨 다운로드
     # -----------------------------
     blob_service_client = BlobServiceClient.from_connection_string(settings.BLOB_CONNECTION_STRING)
     container_client = blob_service_client.get_container_client(settings.BLOB_CONTAINER_NAME)
-    blob_client = container_client.get_blob_client(model_file_name)
+    
+    # 모델 파일 다운로드
+    model_blob_client = container_client.get_blob_client(model_file_name)
+    model_bytes = model_blob_client.download_blob().readall()
 
-    # 모델 바이너리 다운로드
-    model_bytes = blob_client.download_blob().readall()
+    # 라벨 파일 다운로드 (모델 파일명 + .json)
+    label_file_name = f"{disease_labels}.json"
+    label_blob_client = container_client.get_blob_client(label_file_name)
+
+    try:
+        label_bytes = label_blob_client.download_blob().readall()
+        disease_labels = json.loads(label_bytes.decode('utf-8'))
+        logger.info(f"Loaded labels from Blob Storage: {disease_labels}")
+    except Exception as e:
+        logger.error(f"라벨 파일 로드 실패: {label_file_name}, {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"라벨 정보 로드 실패: {str(e)}"
+        )
 
     # -----------------------------
     # (C) PyTorch 모델 로드
     # -----------------------------
-    # 정확한 모델 아키텍처 재현 필요
-    model = efficientnet_b0(weights=EfficientNet_B0_Weights.IMAGENET1K_V1)
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, len(disease_labels))  # 최종 레이어 조정
-    
-    # CPU 환경에서 로드하도록 설정
+    # 아키텍처 분리 후 간소화된 모델 생성
     try:
-        model.load_state_dict(
-            torch.load(BytesIO(model_bytes), map_location=torch.device('cpu'))
-        )
+        checkpoint = torch.load(BytesIO(model_bytes), map_location=torch.device('cpu'))
+        
+        if 'resnet' in checkpoint and 'efficientnet' in checkpoint:
+            is_ensemble = True
+            # 개별 모델 초기화 (num_classes 파라미터 사용)
+            resnet = models.resnet18(weights=None)
+            resnet.fc = nn.Sequential(
+                nn.Dropout(0.7),
+                nn.Linear(resnet.fc.in_features, len(disease_labels))
+            )
+            resnet.load_state_dict(checkpoint['resnet'])
+
+            efficientnet = models.efficientnet_b0(weights=None)
+            efficientnet.classifier[1] = nn.Sequential(
+                nn.Dropout(0.7),
+                nn.Linear(efficientnet.classifier[1].in_features, 256),
+                nn.ReLU(),
+                nn.Linear(256, len(disease_labels))
+            )
+            efficientnet.load_state_dict(checkpoint['efficientnet'])
+
+            # 앙상블 모델 초기화 방식 수정 (num_classes 파라미터 제거)
+            model = EnsembleModel(models=[resnet, efficientnet])
+        else:
+            is_ensemble = False
+            # 단일 모델 초기화 (num_classes 파라미터 사용)
+            if "resnet" in model_file_name.lower():
+                model = models.resnet18(weights=None)
+                model.fc = nn.Sequential(
+                    nn.Dropout(0.7),
+                    nn.Linear(model.fc.in_features, len(disease_labels))
+                )
+                model.load_state_dict(checkpoint)
+            elif "efficientnet" in model_file_name.lower():
+                model = models.efficientnet_b0(weights=None)
+                model.classifier[1] = nn.Sequential(
+                    nn.Dropout(0.7),
+                    nn.Linear(model.classifier[1].in_features, 256),
+                    nn.ReLU(),
+                    nn.Linear(256, len(disease_labels))
+                )
+                model.load_state_dict(checkpoint)
+            model.load_state_dict(checkpoint)
     except RuntimeError as e:
         logger.error(f"모델 로드 실패 (pet_type: {pet_type}, model: {model_file_name}): {str(e)}")
         raise HTTPException(
@@ -113,8 +149,10 @@ async def predict_pet_disease_torch(image_url: str, pet_type: str) -> List[Predi
     # (E) 모델 추론
     # -----------------------------
     with torch.no_grad():
-        outputs = model(input_tensor)  # shape: (batch_size, num_classes)
-        probs = torch.softmax(outputs, dim=1)[0]  # (num_classes, )
+        outputs = model(input_tensor)
+        # 앙상블인 경우 이미 평균 처리됨
+        probs_tensor = torch.softmax(outputs, dim=1) 
+        probs = probs_tensor[0]
 
     # -----------------------------
     # (F) 상위 3개 결과 선별

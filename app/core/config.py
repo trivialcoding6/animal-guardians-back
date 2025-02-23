@@ -32,6 +32,8 @@ class Settings(BaseSettings):
 
     TORCH_DOG_MODEL_NAME: str
     TORCH_CAT_MODEL_NAME: str
+    DOG_LABELS: str
+    CAT_LABELS: str
     
     @property
     def ASYNC_DATABASE_URL(self) -> str:
