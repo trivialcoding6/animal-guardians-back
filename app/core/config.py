@@ -29,6 +29,9 @@ class Settings(BaseSettings):
 
     BLOB_CONTAINER_NAME: str
     BLOB_CONNECTION_STRING: str
+
+    TORCH_DOG_MODEL_NAME: str
+    TORCH_CAT_MODEL_NAME: str
     
     @property
     def ASYNC_DATABASE_URL(self) -> str:

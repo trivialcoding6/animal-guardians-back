@@ -8,7 +8,7 @@ from typing import List
 router = APIRouter()
 
 @router.post("/vision/predict", response_model=List[PredictionResult])
-async def predict_image(request: ImagePredictionRequest):
+async def predict_image_custom_vision(request: ImagePredictionRequest):
     try:
         predictions = await predict_pet_disease_custom_vision(request.image_url, request.pet_type)
         return predictions
@@ -20,7 +20,7 @@ async def predict_image(request: ImagePredictionRequest):
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
 @router.post("/torch/predict", response_model=List[PredictionResult])
-async def predict_image(request: ImagePredictionRequest):
+async def predict_image_torch(request: ImagePredictionRequest):
     """
     이미지를 받아서 반려동물의 타입(강아지/고양이)에 따라 
     Azure Blob Storage에서 해당 모델을 가져오고 

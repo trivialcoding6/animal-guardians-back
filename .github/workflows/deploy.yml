@@ -25,6 +25,8 @@ jobs:
       CAT_MODEL_NAME: ${{ secrets.CAT_MODEL_NAME }}
       BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
       BLOB_CONNECTION_STRING: ${{ secrets.BLOB_CONNECTION_STRING }}
+      TORCH_DOG_MODEL_NAME: ${{ secrets.TORCH_DOG_MODEL_NAME }}
+      TORCH_CAT_MODEL_NAME: ${{ secrets.TORCH_CAT_MODEL_NAME }}
 
     steps:
       - uses: actions/checkout@v2
@@ -74,4 +76,6 @@ jobs:
                            "CAT_PROJECT_ID=${{ secrets.CAT_PROJECT_ID }}" \
                            "CAT_MODEL_NAME=${{ secrets.CAT_MODEL_NAME }}" \
                            "BLOB_CONTAINER_NAME=${{ secrets.BLOB_CONTAINER_NAME }}" \
-                           "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}"
+                           "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}" \
+                           "TORCH_DOG_MODEL_NAME=${{ secrets.TORCH_DOG_MODEL_NAME }}" \
+                           "TORCH_CAT_MODEL_NAME=${{ secrets.TORCH_CAT_MODEL_NAME }}"

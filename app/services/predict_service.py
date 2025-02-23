@@ -19,9 +19,6 @@ from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 
 logger = logging.getLogger(__name__)
 
-DOG_MODEL_NAME = "efficientnet_dog_best_20250223003417.pth"
-CAT_MODEL_NAME = "efficientnet_cat_best_20250223011242.pth"
-
 # 분류할 질병 라벨 목록 (모델 아웃풋 순서에 대응해야 함, 예시는 5개)
 DOG_LABELS = [
     "A1",
@@ -52,10 +49,10 @@ async def predict_pet_disease_torch(image_url: str, pet_type: str) -> List[Predi
     # (A) pet_type에 따라 모델 & 라벨 선택
     # -----------------------------
     if pet_type == "dog":
-        model_file_name = DOG_MODEL_NAME
+        model_file_name = settings.TORCH_DOG_MODEL_NAME
         disease_labels = DOG_LABELS
     elif pet_type == "cat":
-        model_file_name = CAT_MODEL_NAME
+        model_file_name = settings.TORCH_CAT_MODEL_NAME
         disease_labels = CAT_LABELS
     else:
         # 그 외의 경우 예외 처리하거나, 기본값 지정
