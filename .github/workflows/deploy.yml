@@ -19,8 +19,14 @@ jobs:
       STORAGE_NAME: ${{ secrets.STORAGE_NAME }}
       PREDICTION_ENDPOINT: ${{ secrets.PREDICTION_ENDPOINT }}
       PREDICTION_KEY: ${{ secrets.PREDICTION_KEY }}
-      PROJECT_ID: ${{ secrets.PROJECT_ID }}
-      MODEL_NAME: ${{ secrets.MODEL_NAME }}
+      DOG_PROJECT_ID: ${{ secrets.DOG_PROJECT_ID }}
+      DOG_MODEL_NAME: ${{ secrets.DOG_MODEL_NAME }}
+      CAT_PROJECT_ID: ${{ secrets.CAT_PROJECT_ID }}
+      CAT_MODEL_NAME: ${{ secrets.CAT_MODEL_NAME }}
+      BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
+      BLOB_CONNECTION_STRING: ${{ secrets.BLOB_CONNECTION_STRING }}
+      TORCH_DOG_MODEL_NAME: ${{ secrets.TORCH_DOG_MODEL_NAME }}
+      TORCH_CAT_MODEL_NAME: ${{ secrets.TORCH_CAT_MODEL_NAME }}
 
     steps:
       - uses: actions/checkout@v2
@@ -65,5 +71,11 @@ jobs:
                            "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" \
                            "PREDICTION_ENDPOINT=${{ secrets.PREDICTION_ENDPOINT }}" \
                            "PREDICTION_KEY=${{ secrets.PREDICTION_KEY }}" \
-                           "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
-                           "MODEL_NAME=${{ secrets.MODEL_NAME }}"
+                           "DOG_PROJECT_ID=${{ secrets.DOG_PROJECT_ID }}" \
+                           "DOG_MODEL_NAME=${{ secrets.DOG_MODEL_NAME }}" \
+                           "CAT_PROJECT_ID=${{ secrets.CAT_PROJECT_ID }}" \
+                           "CAT_MODEL_NAME=${{ secrets.CAT_MODEL_NAME }}" \
+                           "BLOB_CONTAINER_NAME=${{ secrets.BLOB_CONTAINER_NAME }}" \
+                           "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}" \
+                           "TORCH_DOG_MODEL_NAME=${{ secrets.TORCH_DOG_MODEL_NAME }}" \
+                           "TORCH_CAT_MODEL_NAME=${{ secrets.TORCH_CAT_MODEL_NAME }}"
