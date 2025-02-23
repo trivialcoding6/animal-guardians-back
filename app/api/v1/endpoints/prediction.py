@@ -4,7 +4,6 @@ from app.services.predict_service import predict_pet_disease_torch, predict_pet_
 import requests
 from typing import List
 
-# APIRouter 생성
 router = APIRouter()
 
 @router.post("/vision/predict", response_model=List[PredictionResult])
