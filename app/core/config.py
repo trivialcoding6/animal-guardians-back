@@ -20,8 +20,15 @@ class Settings(BaseSettings):
 
     PREDICTION_ENDPOINT: str
     PREDICTION_KEY: str
-    PROJECT_ID: str
-    MODEL_NAME: str
+    
+    DOG_PROJECT_ID: str
+    DOG_MODEL_NAME: str
+
+    CAT_PROJECT_ID: str
+    CAT_MODEL_NAME: str
+
+    BLOB_CONTAINER_NAME: str
+    BLOB_CONNECTION_STRING: str
     
     @property
     def ASYNC_DATABASE_URL(self) -> str:
