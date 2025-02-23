@@ -27,6 +27,8 @@ jobs:
       BLOB_CONNECTION_STRING: ${{ secrets.BLOB_CONNECTION_STRING }}
       TORCH_DOG_MODEL_NAME: ${{ secrets.TORCH_DOG_MODEL_NAME }}
       TORCH_CAT_MODEL_NAME: ${{ secrets.TORCH_CAT_MODEL_NAME }}
+      DOG_LABELS: ${{ secrets.DOG_LABELS }}
+      CAT_LABELS: ${{ secrets.CAT_LABELS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -78,4 +80,6 @@ jobs:
                            "BLOB_CONTAINER_NAME=${{ secrets.BLOB_CONTAINER_NAME }}" \
                            "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}" \
                            "TORCH_DOG_MODEL_NAME=${{ secrets.TORCH_DOG_MODEL_NAME }}" \
-                           "TORCH_CAT_MODEL_NAME=${{ secrets.TORCH_CAT_MODEL_NAME }}"
+                           "TORCH_CAT_MODEL_NAME=${{ secrets.TORCH_CAT_MODEL_NAME }}" \
+                           "DOG_LABELS=${{ secrets.DOG_LABELS }}" \
+                           "CAT_LABELS=${{ secrets.CAT_LABELS }}"
